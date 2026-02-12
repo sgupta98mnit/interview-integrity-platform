@@ -54,6 +54,7 @@ model Session {
   lastActivityAt DateTime      @default(now())
   events         Event[]
   snapshots      CodeSnapshot[]
+  reviewSummary  ReviewSummary?
 }
 
 model Event {
@@ -81,4 +82,13 @@ model CodeSnapshot {
   session   Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId, createdAt])
+}
+
+model ReviewSummary {
+  id         String   @id @default(cuid())
+  sessionId  String   @unique
+  metrics    Json
+  flags      Json
+  computedAt DateTime @default(now())
+  session    Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

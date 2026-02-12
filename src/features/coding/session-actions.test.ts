@@ -6,15 +6,21 @@ const {
   sessionFindUnique,
   sessionUpdate,
   codeSnapshotCreate,
+  computeAndPersistReviewSummary,
 } = vi.hoisted(() => ({
   authorizeSessionFromToken: vi.fn(),
   sessionFindUnique: vi.fn(),
   sessionUpdate: vi.fn(),
   codeSnapshotCreate: vi.fn(),
+  computeAndPersistReviewSummary: vi.fn(),
 }));
 
 vi.mock("@/features/session/auth", () => ({
   authorizeSessionFromToken,
+}));
+
+vi.mock("@/features/review/summary", () => ({
+  computeAndPersistReviewSummary,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -65,6 +71,7 @@ describe("session actions", () => {
     sessionFindUnique.mockResolvedValue({ id: "sess_1" });
     codeSnapshotCreate.mockResolvedValue({ id: "snap_submit_1" });
     sessionUpdate.mockResolvedValue({});
+    computeAndPersistReviewSummary.mockResolvedValue({});
 
     const result = await submitSessionCode({
       sessionId: "sess_1",
@@ -90,6 +97,7 @@ describe("session actions", () => {
         }),
       }),
     );
+    expect(computeAndPersistReviewSummary).toHaveBeenCalledWith("sess_1");
   });
 
   it("rejects unauthorized run", async () => {

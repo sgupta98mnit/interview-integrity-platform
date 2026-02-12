@@ -1,5 +1,6 @@
 import { CodeLanguage, SnapshotKind, SessionStatus } from "@prisma/client";
 
+import { computeAndPersistReviewSummary } from "@/features/review/summary";
 import { authorizeSessionFromToken } from "@/features/session/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -139,6 +140,8 @@ export async function submitSessionCode({
       lastActivityAt: new Date(),
     },
   });
+
+  await computeAndPersistReviewSummary(sessionId);
 
   return {
     ok: true,
