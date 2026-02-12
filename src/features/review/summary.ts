@@ -6,6 +6,44 @@ import { computeSimpleLineDiff } from "./diff";
 import { computeReviewAnalysis } from "./scoring";
 import type { ReviewFlag, ReviewMetrics } from "./types";
 
+export type ReviewResponse = {
+  session: {
+    id: string;
+    candidateName: string | null;
+    candidateEmail: string | null;
+    status: string;
+    createdAt: string;
+    submittedAt: string | null;
+  };
+  metrics: ReviewMetrics;
+  flags: ReviewFlag[];
+  events: Array<{
+    id: string;
+    sessionId: string;
+    clientEventId: string;
+    tsISO: string;
+    type: string;
+    metadata: unknown;
+    createdAt: string;
+  }>;
+  snapshots: Array<{
+    id: string;
+    kind: string;
+    language: string;
+    tsISO: string;
+    createdAt: string;
+    code: string;
+  }>;
+  diffs: Array<{
+    fromSnapshotId: string;
+    toSnapshotId: string;
+    fromKind: string;
+    toKind: string;
+    changes: ReturnType<typeof computeSimpleLineDiff>;
+  }>;
+  generatedAtISO: string;
+};
+
 function coerceMetrics(value: unknown): ReviewMetrics | null {
   if (typeof value !== "object" || value === null) {
     return null;
@@ -84,7 +122,7 @@ export async function computeAndPersistReviewSummary(sessionId: string): Promise
   return analysis;
 }
 
-export async function buildReviewResponse(sessionId: string) {
+export async function buildReviewResponse(sessionId: string): Promise<ReviewResponse | null> {
   const session = await prisma.session.findUnique({
     where: { id: sessionId },
     include: {
