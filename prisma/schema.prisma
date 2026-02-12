@@ -2,10 +2,26 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+}
+
+enum SessionStatus {
+  ACTIVE
+  SUBMITTED
+  ENDED
+}
+
+model Session {
+  id             String        @id @default(cuid())
+  candidateName  String?
+  candidateEmail String?
+  status         SessionStatus @default(ACTIVE)
+  tokenNonce     String
+  createdAt      DateTime      @default(now())
+  submittedAt    DateTime?
+  lastActivityAt DateTime      @default(now())
 }
