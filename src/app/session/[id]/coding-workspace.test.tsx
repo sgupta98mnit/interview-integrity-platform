@@ -62,6 +62,11 @@ describe("CodingWorkspace", () => {
 
     render(<CodingWorkspace sessionId="sess_1" />);
 
+    expect(screen.getByRole("link", { name: "Review Session" }).getAttribute("href")).toBe(
+      "/review/sess_1",
+    );
+    expect(screen.getByLabelText("Focus Event Debug Log")).toBeTruthy();
+
     fireEvent.click(screen.getByRole("button", { name: "Run Tests" }));
 
     await waitFor(() => {
@@ -71,7 +76,10 @@ describe("CodingWorkspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Submitted. Review page/)).toBeTruthy();
+      expect(screen.getByText("Submitted successfully.")).toBeTruthy();
+      expect(screen.getByRole("link", { name: "Open review page" }).getAttribute("href")).toBe(
+        "/review/sess_1",
+      );
     });
   });
 });

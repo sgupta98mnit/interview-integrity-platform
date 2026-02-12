@@ -19,6 +19,11 @@ type EditorChangeInput = {
 type UseIntegritySignalsInput = {
   sessionId: string;
   enabled?: boolean;
+  onEventCaptured?: (event: {
+    type: IntegrityEventType;
+    tsISO: string;
+    metadata: Record<string, unknown>;
+  }) => void;
 };
 
 const INGEST_ENDPOINT = "/api/events";
@@ -34,6 +39,7 @@ const makeEventId = (): string => {
 export function useIntegritySignals({
   sessionId,
   enabled = true,
+  onEventCaptured,
 }: UseIntegritySignalsInput) {
   const bufferRef = useRef<IntegrityEventInput[]>([]);
   const typingBucketsRef = useRef<Map<number, number>>(new Map());
@@ -45,14 +51,20 @@ export function useIntegritySignals({
 
   const pushEvent = useCallback(
     (type: IntegrityEventType, metadata: Record<string, unknown>) => {
+      const tsISO = new Date().toISOString();
       bufferRef.current.push({
         clientEventId: makeEventId(),
-        tsISO: new Date().toISOString(),
+        tsISO,
         type,
         metadata,
       });
+      onEventCaptured?.({
+        type,
+        tsISO,
+        metadata,
+      });
     },
-    [],
+    [onEventCaptured],
   );
 
   const markInputActivity = useCallback(() => {

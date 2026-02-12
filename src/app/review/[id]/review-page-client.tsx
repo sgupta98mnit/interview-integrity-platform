@@ -19,18 +19,18 @@ function formatTimestamp(tsISO: string): string {
 }
 
 export function ReviewPageClient({ review }: { review: ReviewResponse }) {
-  const [eventFilter, setEventFilter] = useState("ALL");
+  const [expandedEventType, setExpandedEventType] = useState<string | null>(null);
 
-  const filteredEvents = useMemo(() => {
-    if (eventFilter === "ALL") {
-      return review.events;
+  const groupedEvents = useMemo(() => {
+    const groups = new Map<string, ReviewResponse["events"]>();
+
+    for (const event of review.events) {
+      const existing = groups.get(event.type) ?? [];
+      existing.push(event);
+      groups.set(event.type, existing);
     }
 
-    return review.events.filter((event) => event.type === eventFilter);
-  }, [eventFilter, review.events]);
-
-  const eventTypes = useMemo(() => {
-    return [...new Set(review.events.map((event) => event.type))].sort();
+    return [...groups.entries()].sort(([left], [right]) => left.localeCompare(right));
   }, [review.events]);
 
   const exportAudit = () => {
@@ -112,37 +112,42 @@ export function ReviewPageClient({ review }: { review: ReviewResponse }) {
       </section>
 
       <section className="rounded-lg border border-zinc-200 p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Timeline</h2>
-          <label className="text-sm">
-            Filter
-            <select
-              value={eventFilter}
-              onChange={(event) => setEventFilter(event.target.value)}
-              className="ml-2 rounded border border-zinc-300 px-2 py-1"
-            >
-              <option value="ALL">ALL</option>
-              {eventTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <ul className="mt-3 space-y-2" data-testid="timeline-list">
-          {filteredEvents.map((event) => (
-            <li
-              key={event.id}
-              data-testid="timeline-event"
-              data-event-type={event.type}
-              className="rounded border border-zinc-200 p-3 text-sm"
-            >
-              <p className="font-medium">{event.type}</p>
-              <p className="text-xs text-zinc-500">{formatTimestamp(event.tsISO)}</p>
-            </li>
+        <h2 className="text-lg font-semibold">Timeline</h2>
+        <p className="mt-1 text-xs text-zinc-500">
+          Events are grouped by type. Click a type to expand its full history.
+        </p>
+        <div className="mt-3 space-y-3" data-testid="timeline-groups">
+          {groupedEvents.map(([eventType, events]) => (
+            <div key={eventType} className="rounded border border-zinc-200">
+              <button
+                type="button"
+                data-testid={`event-group-toggle-${eventType}`}
+                onClick={() =>
+                  setExpandedEventType((previous) => (previous === eventType ? null : eventType))
+                }
+                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium"
+              >
+                <span>{eventType}</span>
+                <span className="text-xs text-zinc-500">{events.length} events</span>
+              </button>
+              {expandedEventType === eventType ? (
+                <ul className="border-t border-zinc-200 p-2" data-testid={`event-group-list-${eventType}`}>
+                  {events.map((event) => (
+                    <li
+                      key={event.id}
+                      data-testid="timeline-event"
+                      data-event-type={event.type}
+                      className="rounded border border-zinc-200 p-3 text-sm"
+                    >
+                      <p className="font-medium">{event.type}</p>
+                      <p className="text-xs text-zinc-500">{formatTimestamp(event.tsISO)}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
       <section className="rounded-lg border border-zinc-200 p-5">

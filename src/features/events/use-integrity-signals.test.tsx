@@ -85,4 +85,26 @@ describe("useIntegritySignals", () => {
     expect(windowAddSpy.mock.calls.length).toBe(windowCallsAfterMount);
     expect(documentAddSpy.mock.calls.length).toBe(documentCallsAfterMount);
   });
+
+  it("emits captured events to optional callback", () => {
+    const onEventCaptured = vi.fn();
+
+    renderHook(() =>
+      useIntegritySignals({
+        sessionId: "sess_1",
+        enabled: true,
+        onEventCaptured,
+      }),
+    );
+
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+
+    expect(onEventCaptured).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "FOCUS_LOSS",
+      }),
+    );
+  });
 });

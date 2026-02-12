@@ -94,12 +94,12 @@ describe("ReviewPageClient", () => {
     });
   });
 
-  it("filters timeline by event type", () => {
+  it("shows collapsed event groups and expands selected type history", () => {
     render(<ReviewPageClient review={reviewFixture} />);
 
-    fireEvent.change(screen.getByLabelText("Filter"), {
-      target: { value: "FULLSCREEN_EXIT" },
-    });
+    expect(screen.queryAllByTestId("timeline-event")).toHaveLength(0);
+
+    fireEvent.click(screen.getByTestId("event-group-toggle-FULLSCREEN_EXIT"));
 
     const timelineItems = screen.getAllByTestId("timeline-event");
     expect(timelineItems).toHaveLength(1);

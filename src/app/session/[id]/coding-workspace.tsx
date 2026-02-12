@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useRef, useState } from "react";
 import type { editor as MonacoEditorApi } from "monaco-editor";
 
 import { LogoutButton } from "@/components/logout-button";
@@ -33,13 +34,36 @@ export function CodingWorkspace({ sessionId }: { sessionId: string }) {
   const [runResult, setRunResult] = useState<RunResponse | null>(null);
   const [submitResult, setSubmitResult] = useState<SubmitResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [focusEventLog, setFocusEventLog] = useState<string[]>([]);
 
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<MonacoEditorApi.IStandaloneCodeEditor | null>(null);
 
+  const onSignalCaptured = useCallback(
+    (event: { type: string; tsISO: string }) => {
+      if (
+        event.type !== "FOCUS_LOSS" &&
+        event.type !== "FOCUS_GAIN" &&
+        event.type !== "PAGE_HIDDEN" &&
+        event.type !== "PAGE_VISIBLE"
+      ) {
+        return;
+      }
+
+      const readable = new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "medium",
+      }).format(new Date(event.tsISO));
+
+      setFocusEventLog((previous) => [`${readable} - ${event.type}`, ...previous].slice(0, 40));
+    },
+    [],
+  );
+
   const { trackEditorChange, requestFullscreen } = useIntegritySignals({
     sessionId,
     enabled: true,
+    onEventCaptured: onSignalCaptured,
   });
 
   const runTests = async () => {
@@ -143,6 +167,12 @@ export function CodingWorkspace({ sessionId }: { sessionId: string }) {
           >
             {submitting ? "Submitting..." : "Submit"}
           </button>
+          <Link
+            href={`/review/${sessionId}`}
+            className="rounded border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-800"
+          >
+            Review Session
+          </Link>
           <LogoutButton />
         </div>
 
@@ -182,6 +212,21 @@ export function CodingWorkspace({ sessionId }: { sessionId: string }) {
       </section>
 
       <section className="rounded-lg border border-zinc-200 p-5">
+        <h3 className="text-lg font-semibold">Focus Change Events (Debug)</h3>
+        <p className="mb-2 mt-1 text-xs text-zinc-500">
+          Temporary debug panel for testing. Remove before production use.
+        </p>
+        <textarea
+          aria-label="Focus Event Debug Log"
+          readOnly
+          value={
+            focusEventLog.length === 0 ? "No focus/visibility changes yet." : focusEventLog.join("\n")
+          }
+          className="min-h-28 w-full rounded border border-zinc-300 p-2 font-mono text-xs"
+        />
+      </section>
+
+      <section className="rounded-lg border border-zinc-200 p-5">
         <h3 className="text-lg font-semibold">Run Results</h3>
         {runResult ? (
           <ul className="mt-3 space-y-2">
@@ -199,9 +244,12 @@ export function CodingWorkspace({ sessionId }: { sessionId: string }) {
         )}
 
         {submitResult ? (
-          <p className="mt-4 rounded bg-emerald-50 p-3 text-sm text-emerald-700">
-            Submitted. Review page: {submitResult.reviewUrl}
-          </p>
+          <div className="mt-4 rounded bg-emerald-50 p-3 text-sm text-emerald-700">
+            <p>Submitted successfully.</p>
+            <Link href={submitResult.reviewUrl} className="underline">
+              Open review page
+            </Link>
+          </div>
         ) : null}
 
         {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
