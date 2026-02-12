@@ -33,6 +33,16 @@ enum IntegrityEventType {
   SESSION_SUBMIT
 }
 
+enum SnapshotKind {
+  RUN
+  SUBMIT
+}
+
+enum CodeLanguage {
+  javascript
+  typescript
+}
+
 model Session {
   id             String        @id @default(cuid())
   candidateName  String?
@@ -43,6 +53,7 @@ model Session {
   submittedAt    DateTime?
   lastActivityAt DateTime      @default(now())
   events         Event[]
+  snapshots      CodeSnapshot[]
 }
 
 model Event {
@@ -57,4 +68,17 @@ model Event {
 
   @@unique([sessionId, clientEventId])
   @@index([sessionId, tsISO])
+}
+
+model CodeSnapshot {
+  id        String       @id @default(cuid())
+  sessionId String
+  kind      SnapshotKind
+  code      String
+  language  CodeLanguage
+  tsISO     DateTime
+  createdAt DateTime     @default(now())
+  session   Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
 }

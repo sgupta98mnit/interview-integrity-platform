@@ -13,7 +13,9 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.11.1",
+    "monaco-editor": "^0.55.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
