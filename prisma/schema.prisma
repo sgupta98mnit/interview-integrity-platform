@@ -16,6 +16,23 @@ enum SessionStatus {
   ENDED
 }
 
+enum IntegrityEventType {
+  FOCUS_LOSS
+  FOCUS_GAIN
+  PAGE_HIDDEN
+  PAGE_VISIBLE
+  FULLSCREEN_ENTER
+  FULLSCREEN_EXIT
+  CLIPBOARD_COPY
+  CLIPBOARD_CUT
+  CLIPBOARD_PASTE
+  PASTE_ANALYZED
+  TYPING_BUCKET
+  IDLE
+  EDITOR_CHANGE
+  SESSION_SUBMIT
+}
+
 model Session {
   id             String        @id @default(cuid())
   candidateName  String?
@@ -25,4 +42,19 @@ model Session {
   createdAt      DateTime      @default(now())
   submittedAt    DateTime?
   lastActivityAt DateTime      @default(now())
+  events         Event[]
+}
+
+model Event {
+  id            String             @id @default(cuid())
+  sessionId     String
+  clientEventId String
+  tsISO         DateTime
+  type          IntegrityEventType
+  metadata      Json
+  createdAt     DateTime           @default(now())
+  session       Session            @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, clientEventId])
+  @@index([sessionId, tsISO])
 }
