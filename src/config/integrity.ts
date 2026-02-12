@@ -8,3 +8,5 @@ export const FOCUS_SPIKE_WINDOW_SEC = 300;
 export const BIG_EDIT_PRIOR_TYPING_WINDOW_SEC = 60;
 export const BIG_EDIT_MIN_PRIOR_KEYS = 3;
 export const LONG_IDLE_REPEAT_COUNT = 2;
+export const EVENT_RATE_LIMIT_WINDOW_MS = 60_000;
+export const EVENT_RATE_LIMIT_MAX_REQUESTS = 30;

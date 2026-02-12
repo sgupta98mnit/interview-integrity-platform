@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 import { computeSimpleLineDiff } from "./diff";
 import { computeReviewAnalysis } from "./scoring";
@@ -100,6 +101,7 @@ export async function computeAndPersistReviewSummary(sessionId: string): Promise
   });
 
   if (!session) {
+    logger.warn("review_summary_missing_session", { sessionId });
     return null;
   }
 
@@ -117,6 +119,11 @@ export async function computeAndPersistReviewSummary(sessionId: string): Promise
       flags: analysis.flags as unknown as Prisma.InputJsonValue,
       computedAt: new Date(),
     },
+  });
+
+  logger.info("review_summary_upserted", {
+    sessionId,
+    flagCount: analysis.flags.length,
   });
 
   return analysis;
@@ -137,6 +144,7 @@ export async function buildReviewResponse(sessionId: string): Promise<ReviewResp
   });
 
   if (!session) {
+    logger.warn("review_response_missing_session", { sessionId });
     return null;
   }
 
