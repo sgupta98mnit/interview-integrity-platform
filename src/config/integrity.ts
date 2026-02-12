@@ -1,0 +1,10 @@
+export const BATCH_INTERVAL_MS = 3000;
+export const IDLE_SEC = 120;
+export const LARGE_PASTE_CHARS = 200;
+export const LARGE_PASTE_LINES = 10;
+export const BIG_EDIT_INSERT_CHARS = 300;
+export const FOCUS_SPIKE_COUNT = 3;
+export const FOCUS_SPIKE_WINDOW_SEC = 300;
+export const BIG_EDIT_PRIOR_TYPING_WINDOW_SEC = 60;
+export const BIG_EDIT_MIN_PRIOR_KEYS = 3;
+export const LONG_IDLE_REPEAT_COUNT = 2;
