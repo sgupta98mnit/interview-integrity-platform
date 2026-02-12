@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
 import type { editor as MonacoEditorApi } from "monaco-editor";
 
+import { LogoutButton } from "@/components/logout-button";
 import { problemStatement } from "@/features/coding/problem";
 import { useIntegritySignals } from "@/features/events/use-integrity-signals";
 
@@ -142,6 +143,7 @@ export function CodingWorkspace({ sessionId }: { sessionId: string }) {
           >
             {submitting ? "Submitting..." : "Submit"}
           </button>
+          <LogoutButton />
         </div>
 
         <div ref={editorContainerRef} className="overflow-hidden rounded border border-zinc-300">

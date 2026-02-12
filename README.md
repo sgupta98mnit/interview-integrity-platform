@@ -25,6 +25,7 @@ Open `http://localhost:3000`.
 
 - `GET /start`: candidate/session bootstrap form
 - `GET /session/[id]`: coding editor with Run Tests + Submit
+- `GET /review`: all sessions index with quick links to each review
 - `GET /review/[id]`: admin review timeline, flags, metrics, diffs, export
 
 ## API Endpoints

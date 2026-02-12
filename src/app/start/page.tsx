@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { StartSessionForm } from "./start-session-form";
 
 export default function StartPage() {
@@ -9,6 +11,14 @@ export default function StartPage() {
       <p className="text-zinc-600">
         Candidate name and email are optional for MVP and used only for review context.
       </p>
+      <div>
+        <Link
+          href="/review"
+          className="rounded border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800"
+        >
+          View All Sessions
+        </Link>
+      </div>
       <StartSessionForm />
     </main>
   );

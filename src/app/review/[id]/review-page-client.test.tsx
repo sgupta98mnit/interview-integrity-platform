@@ -7,6 +7,10 @@ import type { ReviewResponse } from "@/features/review/summary";
 
 import { ReviewPageClient } from "./review-page-client";
 
+vi.mock("@/components/logout-button", () => ({
+  LogoutButton: () => <button type="button">Start New Session</button>,
+}));
+
 const reviewFixture: ReviewResponse = {
   session: {
     id: "sess_1",
@@ -110,5 +114,12 @@ describe("ReviewPageClient", () => {
 
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
     expect(URL.revokeObjectURL).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders human-readable timestamps instead of raw ISO", () => {
+    render(<ReviewPageClient review={reviewFixture} />);
+
+    expect(screen.queryByText("2026-02-12T10:11:00.000Z")).toBeNull();
+    expect(screen.queryByText("2026-02-12T10:31:00.000Z")).toBeNull();
   });
 });

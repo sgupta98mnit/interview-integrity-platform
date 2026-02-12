@@ -23,6 +23,10 @@ vi.mock("@/features/events/use-integrity-signals", () => ({
   }),
 }));
 
+vi.mock("@/components/logout-button", () => ({
+  LogoutButton: () => <button type="button">Start New Session</button>,
+}));
+
 describe("CodingWorkspace", () => {
   beforeEach(() => {
     vi.restoreAllMocks();

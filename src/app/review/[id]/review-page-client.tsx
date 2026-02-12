@@ -1,8 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { LogoutButton } from "@/components/logout-button";
 import type { ReviewResponse } from "@/features/review/summary";
+
+function formatTimestamp(tsISO: string): string {
+  const parsed = new Date(tsISO);
+  if (Number.isNaN(parsed.getTime())) {
+    return tsISO;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "medium",
+  }).format(parsed);
+}
 
 export function ReviewPageClient({ review }: { review: ReviewResponse }) {
   const [eventFilter, setEventFilter] = useState("ALL");
@@ -42,15 +56,26 @@ export function ReviewPageClient({ review }: { review: ReviewResponse }) {
       <section className="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 p-5">
         <div>
           <h1 className="text-2xl font-semibold">Review Session {review.session.id}</h1>
-          <p className="text-sm text-zinc-600">Generated at {review.generatedAtISO}</p>
+          <p className="text-sm text-zinc-600">
+            Generated at {formatTimestamp(review.generatedAtISO)}
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={exportAudit}
-          className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
-        >
-          Export JSON
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/review"
+            className="rounded border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800"
+          >
+            All Sessions
+          </Link>
+          <button
+            type="button"
+            onClick={exportAudit}
+            className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+          >
+            Export JSON
+          </button>
+          <LogoutButton />
+        </div>
       </section>
 
       <section className="rounded-lg border border-zinc-200 p-5">
@@ -76,7 +101,7 @@ export function ReviewPageClient({ review }: { review: ReviewResponse }) {
                 <p className="text-sm font-semibold">
                   {flag.code} · {flag.severity}
                 </p>
-                <p className="text-xs text-zinc-600">{flag.tsISO}</p>
+                <p className="text-xs text-zinc-600">{formatTimestamp(flag.tsISO)}</p>
                 <pre className="mt-2 overflow-x-auto rounded bg-zinc-50 p-2 text-xs">
                   {JSON.stringify(flag.details, null, 2)}
                 </pre>
@@ -114,7 +139,7 @@ export function ReviewPageClient({ review }: { review: ReviewResponse }) {
               className="rounded border border-zinc-200 p-3 text-sm"
             >
               <p className="font-medium">{event.type}</p>
-              <p className="text-xs text-zinc-500">{event.tsISO}</p>
+              <p className="text-xs text-zinc-500">{formatTimestamp(event.tsISO)}</p>
             </li>
           ))}
         </ul>
@@ -126,7 +151,7 @@ export function ReviewPageClient({ review }: { review: ReviewResponse }) {
           {review.snapshots.map((snapshot) => (
             <div key={snapshot.id} className="rounded border border-zinc-200 p-3">
               <p className="text-sm font-medium">
-                {snapshot.kind} · {snapshot.language} · {snapshot.tsISO}
+                {snapshot.kind} · {snapshot.language} · {formatTimestamp(snapshot.tsISO)}
               </p>
               <pre className="mt-2 overflow-x-auto rounded bg-zinc-50 p-3 text-xs">{snapshot.code}</pre>
             </div>
